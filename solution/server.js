@@ -1,17 +1,21 @@
 const http = require("http");
+const homeHandler = require("./handlers/home");
+const goodbyeHandler = require("./handlers/goodbye");
+const submitHandler = require("./handlers/submit");
+const missingHandler = require("./handlers/missing");
 const PORT = 3000;
 
 const server = http.createServer((request, response) => {
   const url = request.url;
+  const method = request.method;
   if (url === "/") {
-    response.writeHead(200, { "content-type": "text/html" });
-    response.end("<h1>Hello</h1>");
+    homeHandler(request, response);
   } else if (url === "/goodbye") {
-    response.writeHead(200, { "content-type": "text/html" });
-    response.end("<h1>Goodbye</h1>");
+    goodbyeHandler(request, response);
+  } else if (method === "POST" && url === "/submit") {
+    submitHandler(request, response);
   } else {
-    response.writeHead(404, { "content-type": "text/html" });
-    response.end("<h1>Not found</h1>");
+    missingHandler(request, response);
   }
 });
 

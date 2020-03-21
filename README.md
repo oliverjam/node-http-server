@@ -190,7 +190,54 @@ const server = http.createServer((request, response) => {
 
 Now our server will send a `404` response for any request it doesn't recognise, and the user will see a "Not found" message.
 
-## Request bodies
+## Modularisation
+
+Our router function is getting a bit messy, and we only have very minimal code inside each branch. Since Node has a module system we can easily split our code up into multiple files so it's easier to manage.
+
+Create a new folder `workshop/handlers`. We'll create a new file in here for each branch of our router. Start by creating a `home.js`:
+
+```js
+// workshop/handlers/home.js
+function homeHandler(request, response) {
+  response.writeHead(200, { "content-type": "text/html" });
+  response.end("<h1>Hello</h1>");
+}
+
+module.exports = homeHandler;
+```
+
+Don't forget we have to export anything we want to use in another file. We can now import and use this function in our `workshop/server.js`:
+
+```js
+const homeHandler = require("./handlers/home");
+
+const server = http.createServer((request, response) => {
+  const url = request.url;
+  if (url === "/") {
+    homeHandler(request, response);
+  }
+  // ...
+});
+```
+
+Visit http://localhost:3000 again and you should still see the "Hello" title. Now extract the other branches of your router's `if` statement to their own handler files. You should end up with a router that looks like this:
+
+```js
+const homeHandler = require("./handlers/home");
+const goodbyeHandler = require("./handlers/goodbye");
+const missingHandler = require("./handlers/missing");
+
+const server = http.createServer((request, response) => {
+  const url = request.url;
+  if (url === "/") {
+    homeHandler(request, response);
+  } else if (url === "/goodbye") {
+    goodbyeHandler(request, response);
+  } else {
+    missingHandler(request, response);
+  }
+});
+```
 
 Todo: `POST` requests, incoming body stream
 
