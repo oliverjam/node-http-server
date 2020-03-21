@@ -265,6 +265,10 @@ const server = http.createServer((request, response) => {
 });
 ```
 
+We can also extract our router function into another file. It's good to separate our concerns: `server.js` is for creating and starting the HTTP server, and `router.js` will be for determining which handler should be called based on the URL.
+
+Create a `router.js` file and copy your router function into it. Don't forget to move all your handler imports too.
+
 ### Request method
 
 So far our server treats every request method the same. We can handle other HTTP methods by checking the `request.method` property. Let's add a new route `POST /submit`. Create a new file `workshop/handlers/submit.js` and create the handler function:
@@ -278,13 +282,12 @@ function submitHandler(request, response) {
 module.exports = submitHandler;
 ```
 
-Then we need to import this in `workshop/server.js` and add a branch to our `if` statement that checks both the method _and_ the URL:
+Then we need to import this in `workshop/router.js` and add a branch to our `if` statement that checks both the method _and_ the URL:
 
 ```js
-const submitHandler = require("./handlers/submit);
-//...
+const submitHandler = require("./handlers/submit");
 
-const server = http.createServer((request, response) => {
+function router(request, response) {
   const url = request.url;
   const method = request.method;
   if (url === "/") {
@@ -293,10 +296,10 @@ const server = http.createServer((request, response) => {
     submitHandler(request, response);
   }
   // ...
-});
+}
 ```
 
-Try loading "http:localhost:3000/submit in your browser. You should see the "Not found" page, because browsers send `GET` requests, not `POST`s. Instead run `curl -X POST localhost:3000/submit` in a new terminal tab/window (or use Postman to send a `POST` request if you prefer). You should see the `<h1>Thank you for submitting</h1>` response.
+Try loading http://localhost:3000/submit in your browser. You should see the "Not found" page, because browsers send `GET` requests, not `POST`s. Instead run `curl -X POST localhost:3000/submit` in a new terminal tab/window (or use Postman to send a `POST` request if you prefer). You should see the `<h1>Thank you for submitting</h1>` response.
 
 #### Request body
 
