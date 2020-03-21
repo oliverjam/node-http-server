@@ -166,6 +166,28 @@ const server = http.createServer((request, response) => {
 
 Visit http://localhost:3000/goodbye in your browser and you should see the "Goodbye" title.
 
+### Redirects
+
+Sometimes we want to _redirect_ the request to another URL. You can set the `"location"` header to the new URL and the browser should follow it. The correct status code for a redirect is usually `302` (`301` is for _permanently_ moved pages).
+
+For example to to redirect `"/hello"` to `"/"`:
+
+```js
+const server = http.createServer((request, response) => {
+  const url = request.url;
+  if (url === "/") {
+    response.writeHead(200, { "content-type": "text/html" });
+    response.end("<h1>Hello</h1>");
+  } else if (url === "/goodbye") {
+    response.writeHead(200, { "content-type": "text/html" });
+    response.end("<h1>Goodbye</h1>");
+  } else if (url === "/hello") {
+    response.writeHead(302, { location: "/" });
+    response.end();
+  }
+});
+```
+
 ### Missing resources
 
 Now that we have routing for different pages it's possible to send requests for resources that don't exist. For example visit http://localhost:3000/uhoh in your browser. The request will hang as the browser never receives a response.
@@ -181,6 +203,9 @@ const server = http.createServer((request, response) => {
   } else if (url === "/goodbye") {
     response.writeHead(200, { "content-type": "text/html" });
     response.end("<h1>Goodbye</h1>");
+  } else if (url === "/home") {
+    response.writeHead(302, { location: "/" });
+    response.end();
   } else {
     response.writeHead(404, { "content-type": "text/html" });
     response.end("<h1>Not found</h1>");
@@ -225,6 +250,7 @@ Visit http://localhost:3000 again and you should still see the "Hello" title. No
 ```js
 const homeHandler = require("./handlers/home");
 const goodbyeHandler = require("./handlers/goodbye");
+const helloHandler = require("./handlers/hello");
 const missingHandler = require("./handlers/missing");
 
 const server = http.createServer((request, response) => {
