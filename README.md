@@ -143,7 +143,7 @@ const server = http.createServer((request, response) => {
 });
 ```
 
-Now when you refresh http://localhost:3000 in your browser you should see `GET /` logged in your terminal. Now visit http://localhost:3000/goodbye in your browser. You should see `GET /goodbye` logged in your terminal. Now run `curl -X POST localhost:3000` in a new terminal tab/window (or use Postman to send a POST request if you prefer). You should see `POST /` logged by your server.
+Now when you refresh http://localhost:3000 in your browser you should see `GET /` logged in your terminal. Now visit http://localhost:3000/goodbye in your browser. You should see `GET /goodbye` logged in your terminal.
 
 We can use the method and URL of the request to determine what response to send.
 
@@ -239,8 +239,90 @@ const server = http.createServer((request, response) => {
 });
 ```
 
-Todo: `POST` requests, incoming body stream
+### Request method
 
-### Dynamic responses
+So far our server treats every request method the same. We can handle other HTTP methods by checking the `request.method` property. Let's add a new route `POST /submit`. Create a new file `workshop/handlers/submit.js` and create the handler function:
 
-Using template literals to include dynamic data in HTML response
+```js
+function submitHandler(request, response) {
+  response.writeHead(200, { "content-type": "text/html" });
+  response.end("<h1>Thank you for submitting</h1>");
+}
+
+module.exports = submitHandler;
+```
+
+Then we need to import this in `workshop/server.js` and add a branch to our `if` statement that checks both the method _and_ the URL:
+
+```js
+const submitHandler = require("./handlers/submit);
+//...
+
+const server = http.createServer((request, response) => {
+  const url = request.url;
+  const method = request.method;
+  if (url === "/") {
+    // ...
+  } else if (method === "POST" && url === "/submit") {
+    submitHandler(request, response);
+  }
+  // ...
+});
+```
+
+Try loading "http:localhost:3000/submit in your browser. You should see the "Not found" page, because browsers send `GET` requests, not `POST`s. Instead run `curl -X POST localhost:3000/submit` in a new terminal tab/window (or use Postman to send a `POST` request if you prefer). You should see the `<h1>Thank you for submitting</h1>` response.
+
+#### Request body
+
+The point of a `POST` request is to _send_ data, using the request body. Node uses a concept called "streams" for requests and responses. This allows your code to start executing before the server has received the entire request (because the request could be very large and take a long time to complete).
+
+The downside of this is that it's slightly more complicated to access a request body. We have to attach event listeners to the request to notify us when we get the next "chunk" of data, and when the request is complete:
+
+```js
+function submitHandler(request, response) => {
+  let body = "";
+  // callback runs every time the stream has the next bit of data
+  request.on("data", chunk => {
+    body += chunk;
+  });
+  // callback runs when request finishes and we have all the data
+  request.on("end", () => {
+    console.log(body); // we should have the whole request body now
+    response.writeHead(200, { "content-type": "text/html" });
+    response.end("<h1>Thank you for submitting</h1>");
+  });
+};
+```
+
+Replace your `submitHandler` with this, then send another `POST` request, but this time add a body: `curl -X POST localhost:3000/submit -d 'name=oli&email=hello@oliverjam.es'`.
+
+You should see `"name=oli&email=hello@oliverjam.es"` logged by your server. This body is [form-encoded](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST) (technically `x-www-form-urlencoded`, the default encoding for HTML form submissions). We need to parse it before we can use it:
+
+```js
+const data = new URLSearchParams(body);
+const name = data.get("name");
+console.log(name); // oli
+```
+
+It's important to know how the incoming data is encoded—the `content-type` header should tell you this if the client sending the request is configured correctly. For example if the request body was sent as JSON you would have to `JSON.parse` it.
+
+##### Error-handling
+
+It's also a good idea to add an error-handler, in case something goes wrong with your request stream:
+
+```js
+request.on("error", error => {
+  // send an error response
+});
+```
+
+## Dynamic responses
+
+So far our responses are all static strings. Since we can now accept user input it would be nice to send a dynamic response using that input. JavaScript's template literals are useful for this: we can "interpolate" values into a string before sending it as the response.
+
+```js
+const name = "oli";
+response.end(`<h1>Hello ${name}</h1>`);
+```
+
+Use a template literal to make your `submitHandler` response dynamic—it should send back an `h1` containing whatever name was submitted as the `POST` body. For example `curl -X POST localhost:3000/submit -d 'name=oli&email=hello@oliverjam.es'` should receive a response of `<h1>Hello oli</h1>`.
