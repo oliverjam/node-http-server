@@ -87,7 +87,7 @@ We should set headers describing our response. For example here we're sending th
 ```js
 const server = http.createServer((request, response) => {
   response.statusCode = 200;
-  response.setHeader(("content-type": "text/plain"));
+  response.setHeader("content-type", "text/plain");
   response.end("Hello");
 });
 ```
@@ -99,7 +99,7 @@ We aren't limited to a plaintext response. Lets send some JSON instead.
 ```js
 const server = http.createServer((request, response) => {
   response.statusCode = 200;
-  response.setHeader(("content-type": "application/json"));
+  response.setHeader("content-type", "application/json");
   response.end(JSON.stringify({ message: "Hello" }));
 });
 ```
@@ -113,7 +113,7 @@ Browsers don't handle JSON that well. Web pages are made of HTML, so let's chang
 ```js
 const server = http.createServer((request, response) => {
   response.statusCode = 200;
-  response.setHeader(("content-type": "text/html"));
+  response.setHeader("content-type", "text/html");
   response.end("<h1>Hello</h1>");
 });
 ```
