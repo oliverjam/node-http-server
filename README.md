@@ -308,7 +308,7 @@ The point of a `POST` request is to _send_ data, using the request body. Node us
 The downside of this is that it's slightly more complicated to access a request body. We have to attach event listeners to the request to notify us when we get the next "chunk" of data, and when the request is complete:
 
 ```js
-function submitHandler(request, response) => {
+function submitHandler(request, response) {
   let body = "";
   // callback runs every time the stream has the next bit of data
   request.on("data", chunk => {
@@ -320,7 +320,7 @@ function submitHandler(request, response) => {
     response.writeHead(200, { "content-type": "text/html" });
     response.end("<h1>Thank you for submitting</h1>");
   });
-};
+}
 ```
 
 Replace your `submitHandler` with this, then send another `POST` request, but this time add a body: `curl -X POST localhost:3000/submit -d 'name=oli&email=hello@oliverjam.es'`.
