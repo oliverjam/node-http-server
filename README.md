@@ -56,6 +56,8 @@ We use the `listen` method of the server object. This takes the port number to l
 
 Now we can run the program in our terminal with `node server.js`. The server will start and you should see "Server listening on http://localhost:3000" logged.
 
+**Note**: The Node process will continue running until you tell it to stop by typing `ctrl-c`. The server won't pick up any code changes until you restart it.
+
 ## Sending requests
 
 We can now send HTTP requests to our server and we should see the "hello" response. You can open http://localhost:3000 in your browser to send a `GET` request and see the response. It's helpful to open the network tab of devtools so you can see all the details of the request and response.
