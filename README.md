@@ -54,7 +54,7 @@ server.listen(PORT, () => console.log(`Listening on http://localhost:${PORT}`));
 
 We use the `listen` method of the server object. This takes the port number to listen on, and an optional callback to run when it starts listening. This callback is a good place to log something so you know the server has started.
 
-Now we can run the program in our terminal with `node server.js`. The server will start and you should see "Server listening on http://localhost:3000" logged.
+Now we can run the program in our terminal with `node workshop/server.js`. The server will start and you should see "Server listening on http://localhost:3000" logged.
 
 **Note**: The Node process will continue running until you tell it to stop by typing `ctrl-c`. The server won't pick up any code changes until you restart it.
 
